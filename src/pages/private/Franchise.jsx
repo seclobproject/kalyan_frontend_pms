@@ -56,7 +56,7 @@ function Franchise() {
           `${editFranchiseUrl}/${addFranchiseData?._id}`,
           addFranchiseData
         );
-        console.log(response, "response");
+        console.log(response, "responsedfdsfdsf");
         if (response.status === 200) {
           setAddFranchiseModal(false);
           setIsLoading(false);
@@ -65,7 +65,11 @@ function Franchise() {
           getAllFranchises();
           toast.success(response?.data?.message);
         } else {
-          toast.error(response?.data?.message);
+          setIsLoading(false);
+          setIsLoadingButton(false);
+          setValidated(false);
+          toast.error(response?.response?.data?.message);
+          getAllFranchises();
         }
       } else {
         const response = await ApiCall(
@@ -80,11 +84,14 @@ function Franchise() {
           setIsLoadingButton(false);
           setValidated(false);
           setIsLoading(false);
-
           getAllFranchises();
           toast.success(response?.data?.message);
         } else {
-          toast.error(response?.data?.message);
+          setIsLoadingButton(false);
+          setValidated(false);
+          setIsLoading(false);
+          toast.error(response?.response?.data?.message);
+          getAllFranchises();
         }
       }
     } catch (error) {
@@ -127,7 +134,7 @@ function Franchise() {
                 <div className="px-4 py-3 border-bottom d-flex  align-items-center justify-content-between">
                   <h3
                     className="card-title fw-semibold mb-0  "
-                    style={{ color: "#F7AE15", margin: 0 }}
+                    style={{ color: "#F7AE15" }}
                   >
                     Franchise
                   </h3>
@@ -175,8 +182,9 @@ function Franchise() {
                               </td>
                            
                               <td>
-    <a
-      className="dropdown-item d-flex  gap-3 mt-2"
+
+   
+      <i className="fs-4 fas fa-pencil-alt" 
       onClick={() => {
         setAddFranchiseModal({
           show: true,
@@ -184,24 +192,21 @@ function Franchise() {
         });
         setddFranchiseData(franchises);
       }}
-      style={{ cursor: 'pointer' }}
-    >
-      <i className="fs-4 fas fa-pencil-alt" style={{ color: "red" }}></i>
-    </a>
-    <a
-      className="dropdown-item  mt-2"
+      style={{ cursor: 'pointer',color: "red" }}
+     ></i>
+
+   
+      <i className="fs-4 fas fa-trash-alt ms-2" style={{ color: "red"  }}
       onClick={() => {
         setDeleteModal({
           show: true,
           id: franchises._id,
         });
       }}
-      style={{ cursor: 'pointer' }}
-    >
-      <i className="fs-4 fas fa-trash-alt" style={{ color: "red" }}></i>
-    </a>
+      ></i>
 
 </td>
+
 
                                   
                         
@@ -213,7 +218,7 @@ function Franchise() {
                       ) : (
                         <tr>
                           <td colSpan={20} style={{ textAlign: "center" }}>
-                            <b>No Category Found</b>{" "}
+                            <b>No Franchise Found</b>{" "}
                           </td>
                         </tr>
                       )}

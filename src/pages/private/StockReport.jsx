@@ -4,20 +4,27 @@ import { ApiCall } from '../../Services/Api';
 import { SlideMotion } from '../../Components/FramerMotion';
 import Loader from '../../Components/Loader';
 import { Button } from 'react-bootstrap';
+import { Pagination, Stack } from '@mui/material';
 
 function StockReport() {
   const [allStock, setAllStock] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-
+  const [params, setParams] = useState({
+    page: 1,
+    limit: 10,
+  });
+  const [totalPages, setTotalPages] = useState(1);
+  const startIndex = (params.page - 1) * params.limit;
 
    //get all stock report 
    const getAllStock = async () => {
     setIsLoading(true);
     try {
-      const response = await ApiCall("get", getAllStockUrl)
+      const response = await ApiCall("get", getAllStockUrl,{},params)
       console.log(response,"rwseponse");
       if (response.status === 200) {
         setAllStock(response?.data?.stock);
+        setTotalPages(response?.data?.totalPages);
         setIsLoading(false);
       } else {
         console.error("Error fetching products list. Unexpected status:");
@@ -27,10 +34,15 @@ function StockReport() {
       console.error("Error fetching products list:", error);
     }
   };
-
+  const handlePageChange = (event, newPage) => {
+    setParams((prevParams) => ({
+      ...prevParams,
+      page: newPage,
+    }));
+  };
   useEffect(()=>{
     getAllStock();
-  },[]);
+  },[params]);
   return (
     <>
       <SlideMotion>
@@ -63,7 +75,7 @@ function StockReport() {
                       <th>Quantity</th>
                       <th>Price</th>
                   
-                      <th></th>
+                      <th>Type</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -74,7 +86,7 @@ function StockReport() {
                             console.log(stocks, "stocks from list "),
                             (
                               <tr key={index}>
-                                <td>{index + 1}</td>
+                            <td>{startIndex + index + 1}</td>
                                 <td>
                                   {moment(stocks?.createdAt).format(
                                     "MMMM Do YYYY"
@@ -93,8 +105,18 @@ function StockReport() {
                                   {stocks?.quantity}
                                 </td>
                                 <td>
-                                  {stocks?.price}
+                                  {stocks?.product?.price}
                                 </td>
+                                <td>
+  {stocks?.type === "remove" ? (
+    <span className="badge bg-danger rounded-6 fw-semibold ">Stock Out</span>
+  ) : stocks?.type === "add" ? (
+    <span className="badge bg-success rounded-6 fw-semibold">Stock In</span>
+  ) : (
+    <span>-</span> 
+  )}
+</td>
+                               
                           
                               </tr>
                             )
@@ -104,7 +126,7 @@ function StockReport() {
                     ) : (
                       <tr>
                         <td colSpan={20} style={{ textAlign: "center" }}>
-                          <b>No Category Found</b>{" "}
+                          <b>No Data Found</b>{" "}
                         </td>
                       </tr>
                     )}
@@ -112,16 +134,18 @@ function StockReport() {
                 </table>
               </div>
             )}
-            {/* <div className="me-2 mt-3  mb-4 d-flex ms-auto">
+            <div className="me-2 mt-3  mb-4 d-flex ms-auto">
               <Stack spacing={2}>
                 <Pagination
+                defaultPage={0}
+                boundaryCount={0}
                   count={totalPages}
                   page={params.page}
                   onChange={handlePageChange}
                   color="primary"
                 />
               </Stack>
-            </div> */}
+            </div>
           </div>
         </div>
       </SlideMotion>

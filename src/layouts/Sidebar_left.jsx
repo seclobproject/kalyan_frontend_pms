@@ -11,6 +11,9 @@ import {
   FileTextOutlined
 } from '@ant-design/icons';
 import { MyContext } from "../Services/Context";
+import ModalComponent from "../Components/ModalComponents";
+import { Button } from "react-bootstrap";
+import { width } from "@fortawesome/free-solid-svg-icons/fa0";
 // import 'antd/dist/antd.css'; // Import Ant Design styles
 
 const { Sider } = Layout;
@@ -22,7 +25,6 @@ const SidebarLeft = () => {
   const handleLogout = () => {
     localStorage.removeItem("User");
     localStorage.removeItem('loggedIn')
-
     navigate("/");
   };
 
@@ -51,7 +53,7 @@ const SidebarLeft = () => {
           <Menu.Item key="7" icon={<FileTextOutlined />}>
             <Link to="/stocks-report">Stocks Report</Link>
           </Menu.Item>
-          <Menu.Item key="6" icon={<LogoutOutlined />} onClick={() => setLogOutModal(true)}>
+          <Menu.Item key="6" icon={<LogoutOutlined />} onClick={() => setLogOutModal({show:true})}>
             Logout
           </Menu.Item>
         </Menu>
@@ -59,16 +61,56 @@ const SidebarLeft = () => {
 
      
 
-      <Modal
-        title="Confirm Logout"
-        visible={logOutModal}
-        onOk={handleLogout}
-        onCancel={() => setLogOutModal(false)}
-        okText="Yes, log out"
-        cancelText="No, keep it"
-      >
-        <p>Are you sure you want to log out?</p>
-      </Modal>
+      <ModalComponent
+          show={logOutModal.show}
+          onHide={() => {
+            setLogOutModal({ show: false, id: null });
+          }}
+          centered
+          width={"500px"}
+        >
+          <div className="modal-body">
+            <div className="row mb-4">
+              <div className="col d-flex justify-content-center">
+              <i className="fa fa-door-open" style={{ fontSize: '50px', color: '#fe9423' }}></i>
+
+              </div>
+            </div>
+            <div className="row">
+              <div className="col d-flex justify-content-center ">
+                <h5 className="">
+                  Are you sure you want to log out{""} ?
+                </h5>
+              </div>
+            </div>
+          </div>
+
+          <div className="modal-footer">
+            <div className="col gap-3 d-flex justify-content-center">
+              <Button
+                onClick={() => {
+                  setLogOutModal({ show: false, id: null });
+                }}
+                type="button"
+                className="btn btn-cancel"
+                data-bs-dismiss="modal"
+              >
+                No, keep it
+              </Button>
+              <Button
+              variant="danger"
+                type="button"
+                className="btn btn-custom text-white"
+                onClick={() => {
+                  handleLogout();
+                }}
+              >
+             
+                Yes, log out
+              </Button>
+            </div>
+          </div>
+        </ModalComponent>
     </>
   );
 };

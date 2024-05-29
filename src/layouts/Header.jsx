@@ -1,6 +1,7 @@
-import { Modal } from "antd";
 import React, {  useState } from "react";
 import { useNavigate } from "react-router-dom";
+import ModalComponent from "../Components/ModalComponents";
+import { Button } from "react-bootstrap";
 
 function Header({}) {
   const navigate = useNavigate();
@@ -31,7 +32,7 @@ function Header({}) {
               role="button"
               aria-haspopup="false"
               aria-expanded="false"
-              onClick={() => setLogOutModal(true)}
+              onClick={() => setLogOutModal({ show: true })}
             >
               <i className="fas fa-sign-out-alt noti-icon" style={{color:"red"}} />
             </a>
@@ -56,16 +57,56 @@ function Header({}) {
         <div className="clearfix" />
       </div>
 
-      <Modal
-        title="Confirm Logout"
-        visible={logOutModal}
-        onOk={handleLogout}
-        onCancel={() => setLogOutModal(false)}
-        okText="Yes, log out"
-        cancelText="No, keep it"
-      >
-        <p>Are you sure you want to log out?</p>
-      </Modal>
+      <ModalComponent
+          show={logOutModal.show}
+          onHide={() => {
+            setLogOutModal({ show: false, id: null });
+          }}
+          centered
+          width={"500px"}
+        >
+          <div className="modal-body">
+            <div className="row mb-4">
+              <div className="col d-flex justify-content-center">
+              <i className="fa fa-door-open" style={{ fontSize: '50px', color: '#fe9423' }}></i>
+
+              </div>
+            </div>
+            <div className="row">
+              <div className="col d-flex justify-content-center ">
+                <h5 className="">
+                  Are you sure you want to log out{""} ?
+                </h5>
+              </div>
+            </div>
+          </div>
+
+          <div className="modal-footer">
+            <div className="col gap-3 d-flex justify-content-center">
+              <Button
+                onClick={() => {
+                  setLogOutModal({ show: false, id: null });
+                }}
+                type="button"
+                className="btn btn-cancel"
+                data-bs-dismiss="modal"
+              >
+                No, keep it
+              </Button>
+              <Button
+              variant="danger"
+                type="button"
+                className="btn btn-custom text-white"
+                onClick={() => {
+                  handleLogout();
+                }}
+              >
+             
+                Yes, log out
+              </Button>
+            </div>
+          </div>
+        </ModalComponent>
     </>
   );
 }

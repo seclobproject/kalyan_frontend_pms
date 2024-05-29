@@ -13714,7 +13714,7 @@ body {
 }
 
 .left-side-menu {
-    width: 240px;
+    /* width: 250px; */
     background:#001529;
     bottom: 0;
     padding: 20px 0;

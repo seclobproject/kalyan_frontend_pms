@@ -15,11 +15,11 @@ import {
   outStockUrl,
   productFilterUrl,
 } from "../../../Utils/Constants";
-import toast from "react-hot-toast/headless";
 import { Pagination, Stack } from "@mui/material";
 import Select from "react-select";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBoxOpen, faBox } from '@fortawesome/free-solid-svg-icons';
+import toast from "react-hot-toast";
 function Stock() {
   const [addStockModal, setAddStockModal] = useState({
     show: false,
@@ -39,12 +39,15 @@ function Stock() {
   const [allFranchise, setAllFranchise] = useState([]);
   const [params, setParams] = useState({
     page: 1,
-    pageSize: 25,
+    pageSize: 1,
   });
   const [totalPages, setTotalPages] = useState(1);
   const [filter, setFilter] = useState();
-  const [searchKey, setSearchKey] = useState(0); 
+  const [name, setName] = useState('');
 
+  console.log(filter,"fiter");
+  const [searchKey, setSearchKey] = useState(0); 
+const [activeFranchiseId, setActiveFranchiseId] = useState(null)
   //get franchise
   const getAllFranchises = async () => {
     try {
@@ -65,7 +68,7 @@ function Stock() {
   const getAllProducts = async () => {
     setIsLoading(true);
     try {
-      const response = await ApiCall("get", getProductUrl);
+      const response = await ApiCall("get", getProductUrl,{},params);
       if (response.status === 200) {
         setAllProducts(response?.data?.products);
         setIsLoading(false);
@@ -97,30 +100,13 @@ function Stock() {
     }
   };
 
-  // add or Out  Stocks
-  const AddOrOutStocks = async (e) => {
+  // add stocks in
+  const addStocks = async (e) => {
     setIsLoading(true);
     setIsLoadingButton(true);
     try {
-      if (addStocksData?._id) {
-        const response = await ApiCall(
-          "put",
-          `${outStockUrl}/${addStocksData?._id}`,
-          addStocksData
-        );
-        if (response.status === 200) {
-          setAddStockModal(false);
-          setIsLoading(false);
-          setAddStockData({});
+      console.log("insert");
 
-          setIsLoadingButton(false);
-          setValidated(false);
-          getAllProducts();
-          toast.success(response?.data?.message);
-        } else {
-          toast.error(response?.data?.message);
-        }
-      } else {
         const response = await ApiCall("post", addStocksUrl, addStocksData);
 
         console.log(response, "respones");
@@ -130,12 +116,22 @@ function Stock() {
           setIsLoadingButton(false);
           setValidated(false);
           getAllProducts();
+          setSearchKey(searchKey+1)
+          setName('')
           toast.success(response?.data?.message);
         } else {
-          toast.error(response?.data?.message);
+          // setAddStockModal(false);
+          setAddStockData({});
+          setIsLoadingButton(false);
+          setValidated(false);
+          setSearchKey(searchKey+1)
+          setName('')
+
+          toast.error(response?.response?.data?.message);
+          getAllProducts();
         }
       }
-    } catch (error) {
+    catch (error) {
       console.error("Error adding stocks :", error);
       toast.error("stocks  failed", false);
     } finally {
@@ -143,12 +139,63 @@ function Stock() {
     }
   };
 
+    // Out stocks in
+    const outStocks = async (e) => {
+      setIsLoading(true);
+      setIsLoadingButton(true);
+      try {
+      console.log("out");
+          const response = await ApiCall("post", outStockUrl, addStocksData);
+          console.log("out",response);
+
+          if (response?.status === 200) {
+            setAddStockModal(false);
+            setAddStockData({});
+            setIsLoading(false)
+            setIsLoadingButton(false);
+            setValidated(false);
+            setSearchKey(searchKey+1)
+            setName('')
+
+            getAllProducts();
+            toast.success(response?.data?.message);
+          } else {
+          // setAddStockModal(false);
+            setIsLoading(false);
+            setIsLoadingButton(false);
+            setValidated(false);
+            setSearchKey(searchKey+1)
+            setName('')
+
+            toast.error(response?.response?.data?.message);
+            getAllProducts();          }
+        }
+      catch (error) {
+        console.error("Error adding stocks :", error);
+        toast.error("stocks  failed", false);
+        toast.error(error?.response?.data?.message);
+      } finally {
+        setIsLoadingButton(false);
+      }
+    };
+
   const handlePageChange = (event, newPage) => {
     setParams((prevParams) => ({
       ...prevParams,
       page: newPage,
     }));
   };
+
+
+  const handleSubmit = () => {
+    if (addStockModal?.out) {
+      outStocks();
+    } else {
+      addStocks();
+    }
+  
+  }
+  
   useEffect(() => {
     if (filter) {
       getAllFilterProducts();
@@ -156,11 +203,12 @@ function Stock() {
       getAllProducts();
     }
     getAllFranchises();
-  }, [filter]);
+  }, [filter,params]);
   return (
     <>
       <SlideMotion>
-        <div className="col-xl-12">
+     
+        <div className="col-xl-12 mt-2">
           <div className="card">
             <div className="card-body">
               <div className="d-flex align-items-center justify-content-between px-4 py-3 border-bottom">
@@ -168,7 +216,7 @@ function Stock() {
                   className="card-title fw-semibold mb-0"
                   style={{ color: "#F7AE15", margin: 0 }}
                 >
-                  Stocks
+{`Stocks ${name ? 'in' : ''} ${name.charAt(0).toUpperCase() + name.slice(1)}`}
                 </h3>
                 <div className="d-flex ms-auto">
                   {" "}
@@ -176,18 +224,21 @@ function Stock() {
                   key={searchKey}
                     placeholder="Search by franchise..."
                     isSearchable={true}
-                    onChange={(selectedOption) =>
-                      setFilter(selectedOption.value)
-                    }
+                    onChange={(selectedOption) => {
+                      setFilter(selectedOption.value);
+                      setName(selectedOption?.label); 
+                    }}
                     required
                     options={allFranchise.map((franchise) => ({
                       value: franchise._id,
                       label: franchise.franchiseName,
                     }))}
-                    className="me-2" // Add margin to the right of the Select
+                    className="me-2" 
                   />
 <Button                variant="secondary"
- onClick={() => {setFilter(''); setSearchKey(searchKey + 1);}}>Reset</Button>
+ onClick={() => {setFilter(''); setSearchKey(searchKey + 1);
+  setName('')
+ }}>Reset</Button>
                 </div>
               </div>
             </div>
@@ -239,7 +290,7 @@ function Stock() {
 
                                 <td>
                                   {products?.quantity ||
-                                    products?.product?.quantity}
+                                    products?.product?.quantity||"0"}
                                 </td>
                                 <td>{products?.price}</td>
                                 <td>
@@ -249,10 +300,11 @@ function Stock() {
     onClick={() => {
       setAddStockModal({
         show: true,
+        out :false
       });
       setAddStockData({
         ...addStocksData,
-        product: products?._id,
+        product:(!filter? products?._id:products?.product?.productId),
       });
     }}
   >
@@ -266,11 +318,11 @@ function Stock() {
     onClick={() => {
       setAddStockModal({
         show: true,
-        id: products?._id,
+        out:true
       });
       setAddStockData({
         ...addStocksData,
-        product: products?._id,
+        product:(!filter? products?._id:products?.product?.productId),
       });
     }}
   >
@@ -313,14 +365,14 @@ function Stock() {
         onHide={() => {
           setAddStockModal({ show: false, id: null });
         }}
-        title={<h4 style={{ color: "#F7AE15", margin: 0 }}>Add Stocks</h4>}
+        title={<h4 style={{ color: "#F7AE15", margin: 0 }}>{addStockModal?.out?'Stock Out':'Stock In'}</h4>}
         centered
         width={"500px"}
       >
         <Form
           noValidate
           validated={validated}
-          onSubmit={(e) => Check_Validation(e, AddOrOutStocks, setValidated)}
+          onSubmit={(e) => Check_Validation(e, handleSubmit, setValidated)}
         >
           <div className="d-flex mb-2">
             <div className="me-2 flex-grow-1">
@@ -384,8 +436,8 @@ function Stock() {
               {isLoadingButton
                 ? "Loading....."
                 : addStocksData?._id
-                ? "Update"
-                : "Add"}
+                ? "Save"
+                : "Save"}
             </Button>
           </div>
         </Form>

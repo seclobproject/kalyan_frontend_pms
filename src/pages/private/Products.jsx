@@ -90,7 +90,11 @@ function Products() {
           getAllProducts()
           toast.success(response?.data?.message);
         } else {
-          toast.error(response?.data?.message);
+          setIsLoading(false);
+          setIsLoadingButton(false);
+          setValidated(false);
+          toast.error(response?.response?.data?.message);
+          getAllProducts()
         }
       } else {
         const response = await ApiCall("post", addProductURl, addProductData);
@@ -101,12 +105,17 @@ function Products() {
           getAllProducts()
           toast.success(response?.data?.message);
         } else {
-          toast.error(response?.data?.message);
+          setIsLoading(false);
+          setIsLoadingButton(false);
+          setValidated(false);
+          toast.error(response?.response?.data?.message);
+
+       
         }
       }
     } catch (error) {
-      console.error("Error adding category :", error);
-      toast.error("News upload failed", false);
+      console.error("Error adding product :", error);
+      toast.error("product adding failed", false);
 
     }
     finally{
@@ -251,31 +260,30 @@ getAllProducts();
                               </td>
                           
                               <td>
-    <a
-      className="dropdown-item d-flex  gap-3 mt-2"
-      onClick={() => {
+  
+      <i className="fs-4 fas fa-pencil-alt"
+       onClick={() => {
         setAddProductModal({
           show: true,
           id: products?._id,
         });
         setAddProductData(products);
       }}
-      style={{ cursor: 'pointer' }}
-    >
-      <i className="fs-4 fas fa-pencil-alt" style={{ color: "red" }}></i>
-    </a>
-    <a
-      className="dropdown-item  mt-2"
-      onClick={() => {
-        setDeleteModal({
-          show: true,
-          id: products._id,
-        });
-      }}
-      style={{ cursor: 'pointer' }}
-    >
-      <i className="fs-4 fas fa-trash-alt" style={{ color: "red" }}></i>
-    </a>
+      style={{ cursor: 'pointer',color: "red"  }}
+      ></i>
+ 
+    {products?.quantity<=0&&(
+
+  <i className="fs-4 fas fa-trash-alt ms-2"  onClick={() => {
+    setDeleteModal({
+      show: true,
+      id: products._id,
+    });
+  }}
+  style={{ cursor: 'pointer', color: "red" }}></i>
+
+    )}
+  
 
 </td>
                         
@@ -415,7 +423,7 @@ getAllProducts();
         onChange={(e) => {
           setAddProductData({
             ...addProductData,
-            price: e.target.value,
+            price: Number(e.target.value),
           });
         }}
         required

@@ -25,7 +25,7 @@ function Login() {
         const response = await ApiCall("post", login_url, loginData);
         console.log(response, "response");
         if (response.status === 200) {
-          toast.success("Login successful");
+          toast.success("Login successfull");
           localStorage.setItem('loggedIn',true)
           localStorage.setItem("User", response?.data?.token)
           navigate("/dashboard");

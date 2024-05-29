@@ -65,7 +65,11 @@ function Category() {
           getAllCategory();
           toast.success(response?.data?.message);
         } else {
-          toast.error(response?.data?.message);
+          setIsLoading(false);
+          setIsLoadingButton(false);
+          setValidated(false);
+          toast.error(response?.response?.data?.message);
+          getAllCategory();
         }
       } else {
         const response = await ApiCall("post", addCategoryUrl, addCategoryData);
@@ -76,12 +80,15 @@ function Category() {
           getAllCategory();
           toast.success(response?.data?.message);
         } else {
-          toast.error(response?.data?.message);
-        }
+          setIsLoading(false);
+          setIsLoadingButton(false);
+          setValidated(false);
+          toast.error(response?.response?.data?.message);       
+         }
       }
     } catch (error) {
       console.error("Error adding category :", error);
-      toast.error("News upload failed", false);
+      toast.error(error?.response?.data?.message);
     } finally {
       setIsLoadingButton(false);
     }
@@ -165,37 +172,31 @@ function Category() {
                             <td>{category?.categoryName?.toUpperCase()}</td>
 
                             <td>
-                              <a
-                                className="dropdown-item d-flex  gap-3 mt-2"
-                                onClick={() => {
-                                  setaddCatregoryModal({
-                                    show: true,
-                                    id: category?._id,
-                                  });
-                                  setAddCategoryData(category);
-                                }}
-                                style={{ cursor: "pointer" }}
-                              >
+                           
                                 <i
-                                  className="fs-4 fas fa-pencil-alt"
-                                  style={{ color: "red" }}
+                                  className="fs-4 fas fa-pencil-alt "
+                                  onClick={() => {
+                                    setaddCatregoryModal({
+                                      show: true,
+                                      id: category?._id,
+                                    });
+                                    setAddCategoryData(category);
+                                  }}
+                                  style={{ cursor: "pointer",color: "red"  }}
                                 ></i>
-                              </a>
-                              <a
-                                className="dropdown-item  mt-2"
-                                onClick={() => {
-                                  setDeleteModal({
-                                    show: true,
-                                    id: category._id,
-                                  });
-                                }}
-                                style={{ cursor: "pointer" }}
-                              >
+                              
+                           
                                 <i
-                                  className="fs-4 fas fa-trash-alt"
-                                  style={{ color: "red" }}
+                                  className="fs-4 fas fa-trash-alt ms-2"
+                                  onClick={() => {
+                                    setDeleteModal({
+                                      show: true,
+                                      id: category._id,
+                                    });
+                                  }}
+                                  style={{ color: "red"  ,cursor: "pointer" }}
                                 ></i>
-                              </a>
+                       
                             </td>
                           </tr>
                         ))}
