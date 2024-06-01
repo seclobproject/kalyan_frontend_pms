@@ -14467,7 +14467,7 @@ body[data-layout-color=dark] .user-pro-dropdown {
 }
 
 .logo-box {
-    height: 70px;
+    height: 90px;
     width: 200px;
     background-color: #001529;
     float: left;
@@ -14487,7 +14487,7 @@ body[data-layout-color=dark] .user-pro-dropdown {
 }
 
 .navbar-custom {
-    background-color: var(--ct-body-bg);
+    background-color: #001529;
     padding: 0 calc(1.5rem / 2) 0 0;
     position: fixed;
     left: 0;
@@ -24696,4 +24696,7 @@ custom-btn {
     100% { transform: rotate(360deg); }
   }
   
+  .ant-menu-item-selected {
+    background-color:#D7A322 !important
+}
   

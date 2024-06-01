@@ -32,10 +32,8 @@ function Products() {
   });
   const [totalPages, setTotalPages] = useState(1);
   const [filteredData, setFilteredData] = useState([]);
-  console.log(addProductData,"addProductData");
   const { Check_Validation } = useContext(MyContext);
   const [filter, setFilter] = useState();
-  console.log(filter,"filter");
 
   //get all products
   const getAllProducts = async () => {
@@ -128,7 +126,6 @@ function Products() {
     try {
       setIsLoading(true);
       const response = await ApiCall("get", getAllFranchiseUrl);
-      console.log(response, "respomes");
       if (response.status === 200) {
         setAllFranchise(response?.data?.franchise);
         setIsLoading(false);
@@ -184,7 +181,7 @@ getAllProducts();
   return (
     <>
       <SlideMotion>
-        <div className="col-xl-12">
+        <div className="col-xl-12 mt-4">
           <div className="card">
             <div className="card-body">
             <div className="px-4 py-3 border-bottom">
@@ -194,11 +191,12 @@ getAllProducts();
     </h3>
     <div>
       <Button
-        variant="primary"
-        className="mt-2 mt-md-0"
+                  style={{background:"#001529",border: "1px solid"}}
+                  className="mt-2 mt-md-0"
         onClick={() => {
           setAddProductModal({ show: true });
           setAddProductData({});
+          setValidated(false);
         }}
       >
         Add Products
@@ -236,7 +234,7 @@ getAllProducts();
                               <td>{index + 1}</td>
                               <td>
                                 {moment(products?.createdAt).format(
-                                  "MMMM Do YYYY"
+                                  "Do MMMM  YYYY"
                                 )}
                               </td>
                               <td>
@@ -249,7 +247,7 @@ getAllProducts();
                                 {products?.category?.categoryName?.toUpperCase()}
                               </td>
                               
-                              <td style={{ width: "300px", height: "150px", overflow: "hidden", whiteSpace: "pre-wrap" }}>
+                              <td style={{ width: "300px", height: "100px", overflow: "hidden", whiteSpace: "pre-wrap" }}>
   <p style={{ margin: 0 }}>  {products?.description}</p>
 </td>
                               <td>
@@ -272,18 +270,28 @@ getAllProducts();
       style={{ cursor: 'pointer',color: "red"  }}
       ></i>
  
-    {products?.quantity<=0&&(
-
-  <i className="fs-4 fas fa-trash-alt ms-2"  onClick={() => {
-    setDeleteModal({
-      show: true,
-      id: products._id,
-    });
-  }}
-  style={{ cursor: 'pointer', color: "red" }}></i>
-
-    )}
-  
+ {products?.quantity <= 0 ? (
+    <i 
+      className="fs-4 fas fa-trash-alt ms-2" 
+      onClick={() => {
+        setDeleteModal({
+          show: true,
+          id: products._id,
+        });
+      }} 
+      style={{ cursor: 'pointer', color: "red" }}
+    ></i>
+  ) : (
+    <i
+      className="fs-4 fas fa-trash-alt ms-2"
+      onClick={() =>
+        toast.error(
+          "Not allowed to delete this product"
+        )
+      }
+      style={{ color: "grey", cursor: "pointer" }}
+    ></i>
+  )}
 
 </td>
                         
@@ -303,14 +311,14 @@ getAllProducts();
               </div>
             )}
                      <div className="me-2 mt-3  mb-4 d-flex ms-auto">
-            <Stack spacing={2}>
+            {/* <Stack spacing={2}>
               <Pagination
                 count={totalPages}
                 page={params.page}
                 onChange={handlePageChange}
                 color="primary"
               />
-            </Stack>
+            </Stack> */}
           </div>
           </div>
         </div>
@@ -331,28 +339,7 @@ getAllProducts();
   onSubmit={(e) => Check_Validation(e,addOrEditproducts, setValidated)}
 >
   <div className="d-flex mb-2">
-    <div className="me-2 flex-grow-1">
-      <label htmlFor="productName" className="form-label">
-        Product Name
-      </label>
-      <input
-        id="productName"
-        className="form-control"
-        placeholder="Enter product name"
-        value={addProductData?.name}
-        onChange={(e) => {
-          setAddProductData({
-            ...addProductData,
-            name: e.target.value,
-          });
-        }}
-        required
-      />
-      <Form.Control.Feedback type="invalid">
-        Please enter product name.
-      </Form.Control.Feedback>
-    </div>
-    <div className="flex-grow-1">
+  <div className="flex-grow-1 me-2">
       <label htmlFor="productCode" className="form-label">
         Product Code
       </label>
@@ -373,10 +360,32 @@ getAllProducts();
         Please enter Product code.
       </Form.Control.Feedback>
     </div>
+    <div className=" flex-grow-1">
+      <label htmlFor="productName" className="form-label">
+        Product Name
+      </label>
+      <input
+        id="productName"
+        className="form-control"
+        placeholder="Enter product name"
+        value={addProductData?.name}
+        onChange={(e) => {
+          setAddProductData({
+            ...addProductData,
+            name: e.target.value,
+          });
+        }}
+        required
+      />
+      <Form.Control.Feedback type="invalid">
+        Please enter product name.
+      </Form.Control.Feedback>
+    </div>
+   
   </div>
 
   <div className="d-flex mb-2">
-    <div className="me-2 flex-grow-1">
+    <div className=" flex-grow-1  me-2">
       <label htmlFor="categoryName" className="form-label">
         Category Name
       </label>
@@ -420,12 +429,13 @@ getAllProducts();
         className="form-control"
         placeholder="Enter price"
         value={addProductData?.price}
-        onChange={(e) => {
-          setAddProductData({
-            ...addProductData,
-            price: Number(e.target.value),
-          });
-        }}
+              onChange={(e) => {
+                const value = e.target.value;
+                setAddProductData({
+                  ...addProductData,
+                  price: value === '' ? '' : Number(value),
+                });
+              }}
         required
       />
       <Form.Control.Feedback type="invalid">
@@ -452,7 +462,6 @@ getAllProducts();
             description: e.target.value,
           });
         }}
-        required
       />
       <Form.Control.Feedback type="invalid">
         Please enter product description.

@@ -17,25 +17,21 @@ import {
 } from "../../../Utils/Constants";
 import { Pagination, Stack } from "@mui/material";
 import Select from "react-select";
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBoxOpen, faBox } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faBoxOpen, faBox } from "@fortawesome/free-solid-svg-icons";
 import toast from "react-hot-toast";
 function Stock() {
   const [addStockModal, setAddStockModal] = useState({
     show: false,
     id: null,
   });
-
   const [validated, setValidated] = useState(false);
-  const [productId, SetProductId] = useState();
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingButton, setIsLoadingButton] = useState(false);
   const [deleteModal, setDeleteModal] = useState({ show: false, id: null });
   const [addStocksData, setAddStockData] = useState({});
-  console.log(addStocksData,"addStocksData");
   const { Check_Validation } = useContext(MyContext);
   const [allProducts, setAllProducts] = useState();
-  const [allCategory, setAllCatgeory] = useState([]);
   const [allFranchise, setAllFranchise] = useState([]);
   const [params, setParams] = useState({
     page: 1,
@@ -43,11 +39,9 @@ function Stock() {
   });
   const [totalPages, setTotalPages] = useState(1);
   const [filter, setFilter] = useState();
-  const [name, setName] = useState('');
+  const [name, setName] = useState("");
+  const [searchKey, setSearchKey] = useState(0);
 
-  console.log(filter,"fiter");
-  const [searchKey, setSearchKey] = useState(0); 
-const [activeFranchiseId, setActiveFranchiseId] = useState(null)
   //get franchise
   const getAllFranchises = async () => {
     try {
@@ -68,7 +62,7 @@ const [activeFranchiseId, setActiveFranchiseId] = useState(null)
   const getAllProducts = async () => {
     setIsLoading(true);
     try {
-      const response = await ApiCall("get", getProductUrl,{},params);
+      const response = await ApiCall("get", getProductUrl, {}, params);
       if (response.status === 200) {
         setAllProducts(response?.data?.products);
         setIsLoading(false);
@@ -86,7 +80,6 @@ const [activeFranchiseId, setActiveFranchiseId] = useState(null)
     setIsLoading(true);
     try {
       const response = await ApiCall("get", `${productFilterUrl}${filter}`);
-      console.log(response, "response from filter");
 
       if (response.status === 200) {
         setAllProducts(response?.data?.products);
@@ -105,33 +98,28 @@ const [activeFranchiseId, setActiveFranchiseId] = useState(null)
     setIsLoading(true);
     setIsLoadingButton(true);
     try {
-      console.log("insert");
+      const response = await ApiCall("post", addStocksUrl, addStocksData);
+      if (response.status === 200) {
+        setAddStockModal(false);
+        setAddStockData({});
+        setIsLoadingButton(false);
+        setValidated(false);
+        getAllProducts();
+        setSearchKey(searchKey + 1);
+        setName("");
+        setFilter()
+        toast.success(response?.data?.message);
+      } else {
+      
+        setIsLoadingButton(false);
+        setValidated(false);
+        setSearchKey(searchKey + 1);
+        setName("");
 
-        const response = await ApiCall("post", addStocksUrl, addStocksData);
-
-        console.log(response, "respones");
-        if (response.status === 200) {
-          setAddStockModal(false);
-          setAddStockData({});
-          setIsLoadingButton(false);
-          setValidated(false);
-          getAllProducts();
-          setSearchKey(searchKey+1)
-          setName('')
-          toast.success(response?.data?.message);
-        } else {
-          // setAddStockModal(false);
-          setAddStockData({});
-          setIsLoadingButton(false);
-          setValidated(false);
-          setSearchKey(searchKey+1)
-          setName('')
-
-          toast.error(response?.response?.data?.message);
-          getAllProducts();
-        }
+        toast.error(response?.response?.data?.message);
+        getAllProducts();
       }
-    catch (error) {
+    } catch (error) {
       console.error("Error adding stocks :", error);
       toast.error("stocks  failed", false);
     } finally {
@@ -139,45 +127,42 @@ const [activeFranchiseId, setActiveFranchiseId] = useState(null)
     }
   };
 
-    // Out stocks in
-    const outStocks = async (e) => {
-      setIsLoading(true);
-      setIsLoadingButton(true);
-      try {
-      console.log("out");
-          const response = await ApiCall("post", outStockUrl, addStocksData);
-          console.log("out",response);
-
-          if (response?.status === 200) {
-            setAddStockModal(false);
-            setAddStockData({});
-            setIsLoading(false)
-            setIsLoadingButton(false);
-            setValidated(false);
-            setSearchKey(searchKey+1)
-            setName('')
-
-            getAllProducts();
-            toast.success(response?.data?.message);
-          } else {
-          // setAddStockModal(false);
-            setIsLoading(false);
-            setIsLoadingButton(false);
-            setValidated(false);
-            setSearchKey(searchKey+1)
-            setName('')
-
-            toast.error(response?.response?.data?.message);
-            getAllProducts();          }
-        }
-      catch (error) {
-        console.error("Error adding stocks :", error);
-        toast.error("stocks  failed", false);
-        toast.error(error?.response?.data?.message);
-      } finally {
+  // Out stocks in
+  const outStocks = async (e) => {
+    setIsLoading(true);
+    setIsLoadingButton(true);
+    try {
+      const response = await ApiCall("post", outStockUrl, addStocksData);
+      if (response?.status === 200) {
+        setAddStockModal(false);
+        setAddStockData({});
+        setIsLoading(false);
         setIsLoadingButton(false);
+        setValidated(false);
+        setSearchKey(searchKey + 1);
+        setName("");
+        setFilter();
+        getAllProducts();
+        toast.success(response?.data?.message);
+      } else {
+        // setAddStockModal(false);
+        setIsLoading(false);
+        setIsLoadingButton(false);
+        setValidated(false);
+        setSearchKey(searchKey + 1);
+        setName("");
+
+        toast.error(response?.response?.data?.message);
+        getAllProducts();
       }
-    };
+    } catch (error) {
+      console.error("Error adding stocks :", error);
+      toast.error("stocks  failed", false);
+      toast.error(error?.response?.data?.message);
+    } finally {
+      setIsLoadingButton(false);
+    }
+  };
 
   const handlePageChange = (event, newPage) => {
     setParams((prevParams) => ({
@@ -186,16 +171,14 @@ const [activeFranchiseId, setActiveFranchiseId] = useState(null)
     }));
   };
 
-
   const handleSubmit = () => {
     if (addStockModal?.out) {
       outStocks();
     } else {
       addStocks();
     }
-  
-  }
-  
+  };
+
   useEffect(() => {
     if (filter) {
       getAllFilterProducts();
@@ -203,12 +186,18 @@ const [activeFranchiseId, setActiveFranchiseId] = useState(null)
       getAllProducts();
     }
     getAllFranchises();
-  }, [filter,params]);
+  }, [filter, params]);
+
+
+  useEffect(()=>{
+if(addStockModal?.show===false){
+  setAddStockData({})
+}
+  },[addStockModal]);
   return (
     <>
       <SlideMotion>
-     
-        <div className="col-xl-12 mt-2">
+        <div className="col-xl-12 mt-4">
           <div className="card">
             <div className="card-body">
               <div className="d-flex align-items-center justify-content-between px-4 py-3 border-bottom">
@@ -216,29 +205,44 @@ const [activeFranchiseId, setActiveFranchiseId] = useState(null)
                   className="card-title fw-semibold mb-0"
                   style={{ color: "#F7AE15", margin: 0 }}
                 >
-{`Stocks ${name ? 'in' : ''} ${name.charAt(0).toUpperCase() + name.slice(1)}`}
+                  {`Stocks ${name ? "in" : ""} ${
+                    name.charAt(0).toUpperCase() + name.slice(1)
+                  }`}
                 </h3>
                 <div className="d-flex ms-auto">
                   {" "}
                   <Select
-                  key={searchKey}
+                  styles={{
+                    container: (provided) => ({
+                      ...provided,
+                      width: 200, 
+                    }),
+                  }}
+                    key={searchKey}
                     placeholder="Search by franchise..."
                     isSearchable={true}
                     onChange={(selectedOption) => {
                       setFilter(selectedOption.value);
-                      setName(selectedOption?.label); 
+                      setName(selectedOption?.label);
                     }}
                     required
                     options={allFranchise.map((franchise) => ({
                       value: franchise._id,
                       label: franchise.franchiseName,
                     }))}
-                    className="me-2" 
+                    className="me-2"
                   />
-<Button                variant="secondary"
- onClick={() => {setFilter(''); setSearchKey(searchKey + 1);
-  setName('')
- }}>Reset</Button>
+                  <Button
+                    variant="secondary"
+                    onClick={() => {
+                      setFilter("");
+                      setSearchKey(searchKey + 1);
+                      setName("");
+                    
+                    }}
+                  >
+                    Reset
+                  </Button>
                 </div>
               </div>
             </div>
@@ -255,7 +259,7 @@ const [activeFranchiseId, setActiveFranchiseId] = useState(null)
                       <th>Product Code</th>
                       <th>Product Name</th>
                       <th>Category</th>
-                      <th>Quantity</th>
+                      <th>Total Quantity</th>
                       <th>Price</th>
                       <th>Stock In</th>
                       <th>Stock Out</th>
@@ -265,75 +269,86 @@ const [activeFranchiseId, setActiveFranchiseId] = useState(null)
                   <tbody>
                     {allProducts?.length ? (
                       <>
-                        {allProducts.map(
-                          (products, index) => (
-                            console.log(products, "products from list "),
-                            (
-                              <tr key={index}>
-                                <td>{index + 1}</td>
-                                <td>
-                                  {moment(products?.createdAt).format(
-                                    "MMMM Do YYYY"
-                                  )}
-                                </td>
-                                <td>
-                                  {products?.productCode ||
-                                    products?.product?.productCode}
-                                </td>
-                                <td>
-                                  {products?.name?.toUpperCase() ||
-                                    products?.product?.productName?.toUpperCase()}
-                                </td>
-                                <td>
-                                  {products?.category?.categoryName?.toUpperCase()}
-                                </td>
+                        {allProducts.map((products, index) => (
+                          <tr key={index}>
+                            <td>{index + 1}</td>
+                            <td>
+                              {moment(products?.createdAt).format(
+                                "Do MMMM  YYYY"
+                              )}
+                            </td>
+                            <td>
+                              {products?.productCode ||
+                                products?.product?.productCode}
+                            </td>
+                            <td>
+                              {products?.name?.toUpperCase() ||
+                                products?.product?.productName?.toUpperCase()}
+                            </td>
+                            <td>
+                              {products?.category?.categoryName?.toUpperCase() ||
+                                products?.product?.categoryName?.toUpperCase()}
+                            </td>
 
-                                <td>
-                                  {products?.quantity ||
-                                    products?.product?.quantity||"0"}
-                                </td>
-                                <td>{products?.price}</td>
-                                <td>
-  <Button
-    variant="primary"
-    className="mt-2 mt-md-0"
-    onClick={() => {
-      setAddStockModal({
-        show: true,
-        out :false
-      });
-      setAddStockData({
-        ...addStocksData,
-        product:(!filter? products?._id:products?.product?.productId),
-      });
-    }}
-  >
-    <FontAwesomeIcon icon={faBoxOpen} className="me-2" />
-    Stock In
-  </Button>
-</td>
-<td>
-  <Button
-    variant="danger"
-    onClick={() => {
-      setAddStockModal({
-        show: true,
-        out:true
-      });
-      setAddStockData({
-        ...addStocksData,
-        product:(!filter? products?._id:products?.product?.productId),
-      });
-    }}
-  >
-    <FontAwesomeIcon icon={faBox} className="me-2" />
-    Stock Out
-  </Button>
-</td>
-                              </tr>
-                            )
-                          )
-                        )}
+                            <td>
+                              {products?.quantity ||
+                                products?.product?.quantity ||
+                                "0"}
+                            </td>
+                            <td>
+                              {products?.price ||
+                                products?.product?.price ||
+                                "0"}
+                            </td>
+                            <td>
+                              <Button
+                                variant="primary"
+                                className="mt-2 mt-md-0"
+                                onClick={() => {
+                                  setAddStockModal({
+                                    show: true,
+                                    out: false,
+                                  });
+                                  setAddStockData({
+                                    ...addStocksData,
+                                    product: !filter
+                                      ? products?._id
+                                      : products?.product?.productId,
+                                  });
+                                }}
+                              >
+                                <FontAwesomeIcon
+                                  icon={faBoxOpen}
+                                  className="me-2"
+                                />
+                                Stock In
+                              </Button>
+                            </td>
+                            <td>
+                              <Button
+                                variant="danger"
+                                onClick={() => {
+                                  setAddStockModal({
+                                    show: true,
+                                    out: true,
+                                  });
+                                  setAddStockData({
+                                    ...addStocksData,
+                                    product: !filter
+                                      ? products?._id
+                                      : products?.product?.productId,
+                                  });
+                                }}
+                              >
+                                <FontAwesomeIcon
+                                  icon={faBox}
+                                  className="me-2"
+                                />
+                                Stock Out
+                              </Button>
+                            </td>
+                          </tr>
+                        ))}
                       </>
                     ) : (
                       <tr>
@@ -365,7 +380,11 @@ const [activeFranchiseId, setActiveFranchiseId] = useState(null)
         onHide={() => {
           setAddStockModal({ show: false, id: null });
         }}
-        title={<h4 style={{ color: "#F7AE15", margin: 0 }}>{addStockModal?.out?'Stock Out':'Stock In'}</h4>}
+        title={
+          <h4 style={{ color: "#F7AE15", margin: 0 }}>
+            {addStockModal?.out ? "Stock Out" : "Stock In"}
+          </h4>
+        }
         centered
         width={"500px"}
       >
@@ -415,9 +434,10 @@ const [activeFranchiseId, setActiveFranchiseId] = useState(null)
               placeholder="Enter quantity"
               value={addStocksData?.quantity}
               onChange={(e) => {
+                const value = e.target.value;
                 setAddStockData({
                   ...addStocksData,
-            quantity: Number(e.target.value),
+                  quantity: value === '' ? '' : Number(value),
                 });
               }}
               required
@@ -447,6 +467,7 @@ const [activeFranchiseId, setActiveFranchiseId] = useState(null)
           className="btn btn-custom float-end ms-1"
           onClick={() => {
             setAddStockModal({ show: false, id: null });
+            setAddStockData({})
           }}
         >
           Cancel

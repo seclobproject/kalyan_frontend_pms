@@ -34,13 +34,13 @@ const DotVariants = {
     y: "0%",
   },
   animate: {
-    y: ["0%", "50%", "0%"],  
+    y: ["0%", "50%", "0%"],
   },
 };
 
 const DotTransition = {
   duration: 0.5,
-  repeat: Infinity, 
+  repeat: Infinity,
   ease: "easeInOut",
 };
 

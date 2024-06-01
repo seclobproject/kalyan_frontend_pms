@@ -23,18 +23,15 @@ function Category() {
   const [allCategory, setAllCatgeory] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingButton, setIsLoadingButton] = useState(false);
-
   const [addCategoryData, setAddCategoryData] = useState({});
   const { Check_Validation } = useContext(MyContext);
   const [deleteModal, setDeleteModal] = useState({ show: false, id: null });
-  console.log(deleteModal, "dlete");
 
   //get all category
   const getAllCategory = async () => {
     try {
       setIsLoading(true);
       const response = await ApiCall("get", getAllCategoryUrl);
-      console.log(response, "respomes");
       if (response.status === 200) {
         setAllCatgeory(response?.data?.category);
         setIsLoading(false);
@@ -83,8 +80,8 @@ function Category() {
           setIsLoading(false);
           setIsLoadingButton(false);
           setValidated(false);
-          toast.error(response?.response?.data?.message);       
-         }
+          toast.error(response?.response?.data?.message);
+        }
       }
     } catch (error) {
       console.error("Error adding category :", error);
@@ -120,7 +117,7 @@ function Category() {
   return (
     <>
       <SlideMotion>
-        <div className="col-xl-12">
+        <div className="col-xl-12 mt-4">
           <div className="card">
             <div className="card-body">
               <div className="px-4 py-3 border-bottom d-flex  align-items-center justify-content-between">
@@ -133,7 +130,7 @@ function Category() {
 
                 <div>
                   <Button
-                    variant="primary"
+                    style={{ background: "#001529", border: "1px solid" }}
                     className="mt-2 mt-md-0"
                     onClick={() => {
                       setaddCatregoryModal({ show: true });
@@ -166,26 +163,25 @@ function Category() {
                             <td>{index + 1}</td>
                             <td>
                               {moment(category?.createdAt).format(
-                                "MMMM Do YYYY"
+                                "Do MMMM  YYYY"
                               )}
                             </td>
                             <td>{category?.categoryName?.toUpperCase()}</td>
 
                             <td>
-                           
-                                <i
-                                  className="fs-4 fas fa-pencil-alt "
-                                  onClick={() => {
-                                    setaddCatregoryModal({
-                                      show: true,
-                                      id: category?._id,
-                                    });
-                                    setAddCategoryData(category);
-                                  }}
-                                  style={{ cursor: "pointer",color: "red"  }}
-                                ></i>
-                              
-                           
+                              <i
+                                className="fs-4 fas fa-pencil-alt "
+                                onClick={() => {
+                                  setaddCatregoryModal({
+                                    show: true,
+                                    id: category?._id,
+                                  });
+                                  setAddCategoryData(category);
+                                }}
+                                style={{ cursor: "pointer", color: "red" }}
+                              ></i>
+
+                              {category?.products <= 0 ? (
                                 <i
                                   className="fs-4 fas fa-trash-alt ms-2"
                                   onClick={() => {
@@ -194,9 +190,19 @@ function Category() {
                                       id: category._id,
                                     });
                                   }}
-                                  style={{ color: "red"  ,cursor: "pointer" }}
+                                  style={{ color: "red", cursor: "pointer" }}
                                 ></i>
-                       
+                              ) : (
+                                <i
+                                  className="fs-4 fas fa-trash-alt ms-2"
+                                  onClick={() =>
+                                    toast.error(
+                                      "Not allowed to delete this product"
+                                    )
+                                  }
+                                  style={{ color: "grey", cursor: "pointer" }}
+                                ></i>
+                              )}
                             </td>
                           </tr>
                         ))}
@@ -204,10 +210,11 @@ function Category() {
                     ) : (
                       <tr>
                         <td colSpan={20} style={{ textAlign: "center" }}>
-                          <b>No Category Found</b>{" "}
+                          <b>No Categories Found</b>{" "}
                         </td>
                       </tr>
                     )}
+                    <div className="me-2 mt-3  mb-4 d-flex ms-auto"></div>
                   </tbody>
                 </table>
               </div>

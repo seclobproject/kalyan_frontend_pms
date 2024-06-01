@@ -12,6 +12,7 @@ function Login() {
     const { Check_Validation } = useContext(MyContext)
     const  [loginData,setLoginData]=useState('')
     const [showPassword, setShowPassword] = useState(false);
+    const [message, setMessage] = useState();
 
     const handlePasswordToggle = () => {
       setShowPassword(!showPassword);
@@ -20,10 +21,9 @@ function Login() {
 
     const login = async () => {
       try {
-        console.log("works in main");
-  
+
         const response = await ApiCall("post", login_url, loginData);
-        console.log(response, "response");
+        console.log(response, "responsbnbbe");
         if (response.status === 200) {
           toast.success("Login successfull");
           localStorage.setItem('loggedIn',true)
@@ -31,9 +31,11 @@ function Login() {
           navigate("/dashboard");
         } else {
           toast.error(response?.response?.data?.message);
+          setMessage(response?.response?.data?.message)
         }
       } catch (error) {
-        Show_Toast(error, false);
+        console.log(error,"msg");
+        // toast.error(error, false);
       }
     };
   
@@ -65,12 +67,14 @@ const handleLogin = (e) => {
                     <div className="mb-3">
                         <label htmlFor="emailaddress" className="form-label">Email address</label>
                         <input className="form-control" type="email" id="emailaddress" required placeholder="Enter your email" 
-                         onChange={(e) =>
-                            setLoginData({
-                              ...loginData,
-                              email: e.target.value,
-                            })
-                          }
+                       onChange={(e) => {
+                        setLoginData({
+                          ...loginData,
+                          email: e.target.value,
+                        });
+                        setMessage('');
+                      }}
+                      
                         />
                         <Form.Control.Feedback type='invalid'>
                             Please Provide a email
@@ -87,12 +91,13 @@ const handleLogin = (e) => {
                               required
                               value={loginData?.password}
                               type={showPassword ? "text" : "password"}
-                              onChange={(e) =>
+                              onChange={(e) =>{
                                 setLoginData({
                                   ...loginData,
                                   password: e.target.value,
-                                })
-                              }
+                                });
+                                setMessage('');
+                              }}
                             />
                             <button
                               className="btn btn-light "
@@ -111,9 +116,10 @@ const handleLogin = (e) => {
                             </Form.Control.Feedback>
                           </div>
                         </div>
-                  
                     <div className="mb-3 d-grid text-center">
-                        <button className="btn btn-primary" type="submit"> Log In </button>
+                    <span style={{color:"red"}}>{message?.toUpperCase()}</span>
+
+                        <button className="btn btn-primary mt-2" type="submit"> Log In </button>
                     </div>
                     </Form>
                 </div>
