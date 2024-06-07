@@ -21,9 +21,7 @@ function Login() {
 
     const login = async () => {
       try {
-
         const response = await ApiCall("post", login_url, loginData);
-        console.log(response, "responsbnbbe");
         if (response.status === 200) {
           toast.success("Login successfull");
           localStorage.setItem('loggedIn',true)
